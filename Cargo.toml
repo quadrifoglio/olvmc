@@ -1,0 +1,8 @@
+[package]
+name = "olvmc"
+version = "0.1.0"
+authors = ["Quadrifoglio <clement@dreamvids.fr>"]
+
+[dependencies]
+clap = "2"
+json = "*"
