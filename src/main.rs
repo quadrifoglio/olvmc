@@ -4,6 +4,7 @@ extern crate json;
 extern crate clap;
 
 mod image;
+mod vm;
 
 use std::error::Error;
 use std::net::UdpSocket;
@@ -42,6 +43,8 @@ fn main() {
         .version("1.0")
         .author("Clément L. <quadrifoglio.clement@gmail.com>")
         .about("Command line client for the OLVM Virtual Machine Manager")
+
+        // Images
         .subcommand(SubCommand::with_name("createimg")
                     .about("Create a new image")
                     .arg(Arg::with_name("def")
@@ -79,6 +82,46 @@ fn main() {
                          .long("name")
                          .help("Name of the image"))
         )
+
+        // VMs
+        .subcommand(SubCommand::with_name("createvm")
+                    .about("Create a new VM")
+                    .arg(Arg::with_name("def")
+                         .required(true)
+                         .takes_value(true)
+                         .short("d")
+                         .long("definition")
+                         .help("Path to the JSON VM definition"))
+        )
+        .subcommand(SubCommand::with_name("listvm").about("List VMs"))
+        .subcommand(SubCommand::with_name("getvm")
+                    .about("Get information about a VM")
+                    .arg(Arg::with_name("name")
+                         .required(true)
+                         .takes_value(true)
+                         .short("n")
+                         .long("name")
+                         .help("Name of the VM"))
+        )
+        .subcommand(SubCommand::with_name("updatevm")
+                    .about("Update an existing VM")
+                    .arg(Arg::with_name("def")
+                         .required(true)
+                         .takes_value(true)
+                         .short("d")
+                         .long("definition")
+                         .help("Path to the JSON VM definition"))
+        )
+        .subcommand(SubCommand::with_name("delvm")
+                    .about("Delete an VM")
+                    .arg(Arg::with_name("name")
+                         .required(true)
+                         .takes_value(true)
+                         .short("n")
+                         .long("name")
+                         .help("Name of the VM"))
+        )
+
         .get_matches();
 
     // Create Image
@@ -114,6 +157,42 @@ fn main() {
         match image::delete(srv, matches.value_of("name").unwrap()) {
             Ok(_) => {},
             Err(e) => println!("Failed to delete image: {}", e)
+        };
+    }
+
+    // Create VM
+    if let Some(matches) = matches.subcommand_matches("createvm") {
+        match vm::create(srv, matches.value_of("def").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to create vm: {}", e)
+        };
+    }
+    // List vms
+    else if let Some(_) = matches.subcommand_matches("listvm") {
+        match vm::list(srv) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to get vm: {}", e)
+        };
+    }
+    // Get VM
+    if let Some(matches) = matches.subcommand_matches("getvm") {
+        match vm::get(srv, matches.value_of("name").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to get vm: {}", e)
+        };
+    }
+    // Update VM
+    if let Some(matches) = matches.subcommand_matches("updatevm") {
+        match vm::update(srv, matches.value_of("def").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to update vm: {}", e)
+        };
+    }
+    // Delete VM
+    if let Some(matches) = matches.subcommand_matches("delvm") {
+        match vm::delete(srv, matches.value_of("name").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to delete vm: {}", e)
         };
     }
 }
