@@ -44,7 +44,7 @@ pub fn list(srv: &str, vm: &str) -> Result<(), String> {
         Err(e) => return Err(e)
     };
 
-    println!("Index\t\tNetwork\t\tIP\t\tMAC\t\t");
+    println!("Index\t\tNetwork\t\tIP\t\t\tMAC");
 
     if vm["interfaces"].is_null() || !vm["interfaces"].is_array() {
         return Err("Invalid response for backend, expected array (interfaces)".to_string());
