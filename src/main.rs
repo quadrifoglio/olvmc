@@ -5,6 +5,7 @@ extern crate clap;
 
 mod image;
 mod vm;
+mod interface;
 mod snapshot;
 
 use std::error::Error;
@@ -160,6 +161,48 @@ fn main() {
                          .help("Name of the VM"))
         )
 
+        // Network interfaces
+        .subcommand(SubCommand::with_name("createiface")
+                    .about("Attach a new network interface to a VM")
+                    .arg(Arg::with_name("vm")
+                         .required(true)
+                         .takes_value(true)
+                         .long("vm")
+                         .help("Name of the VM"))
+                    .arg(Arg::with_name("network")
+                         .required(true)
+                         .takes_value(true)
+                         .long("network")
+                         .help("Name of the network to attach the VM to"))
+                    .arg(Arg::with_name("ip")
+                         .required(true)
+                         .takes_value(true)
+                         .long("ip")
+                         .help("IP address of the network interface"))
+        )
+        .subcommand(SubCommand::with_name("listiface")
+                    .about("List a VM's network interfaces")
+                    .arg(Arg::with_name("vm")
+                         .required(true)
+                         .takes_value(true)
+                         .long("vm")
+                         .help("Name of the VM"))
+        )
+        .subcommand(SubCommand::with_name("deliface")
+                    .about("Delete a VM's network interface")
+                    .arg(Arg::with_name("vm")
+                         .required(true)
+                         .takes_value(true)
+                         .long("vm")
+                         .help("Name of the VM"))
+                    .arg(Arg::with_name("index")
+                         .required(true)
+                         .takes_value(true)
+                         .short("i")
+                         .long("index")
+                         .help("Index of the network interface"))
+        )
+
         // Snapshots
         .subcommand(SubCommand::with_name("createsnap")
                     .about("Save the state of a VM")
@@ -297,6 +340,28 @@ fn main() {
         match vm::stop(srv, matches.value_of("name").unwrap()) {
             Ok(_) => {},
             Err(e) => println!("Failed to stop vm: {}", e)
+        };
+    }
+
+    // Create interface
+    if let Some(matches) = matches.subcommand_matches("createiface") {
+        match interface::create(srv, matches.value_of("vm").unwrap(), matches.value_of("network").unwrap(), matches.value_of("ip").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to create interface: {}", e)
+        };
+    }
+    // List interfaces
+    if let Some(matches) = matches.subcommand_matches("listiface") {
+        match interface::list(srv, matches.value_of("vm").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to list interfaces: {}", e)
+        };
+    }
+    // Delete interface
+    if let Some(matches) = matches.subcommand_matches("deliface") {
+        match interface::delete(srv, matches.value_of("vm").unwrap(), matches.value_of("index").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to delete interface: {}", e)
         };
     }
 
