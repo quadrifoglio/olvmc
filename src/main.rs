@@ -140,6 +140,24 @@ fn main() {
                          .long("name")
                          .help("Name of the VM"))
         )
+        .subcommand(SubCommand::with_name("startvm")
+                    .about("Start a VM")
+                    .arg(Arg::with_name("name")
+                         .required(true)
+                         .takes_value(true)
+                         .short("n")
+                         .long("name")
+                         .help("Name of the VM"))
+        )
+        .subcommand(SubCommand::with_name("stopvm")
+                    .about("Stop a VM")
+                    .arg(Arg::with_name("name")
+                         .required(true)
+                         .takes_value(true)
+                         .short("n")
+                         .long("name")
+                         .help("Name of the VM"))
+        )
 
         .get_matches();
 
@@ -212,6 +230,20 @@ fn main() {
         match vm::delete(srv, matches.value_of("name").unwrap()) {
             Ok(_) => {},
             Err(e) => println!("Failed to delete vm: {}", e)
+        };
+    }
+    // Start VM
+    if let Some(matches) = matches.subcommand_matches("startvm") {
+        match vm::start(srv, matches.value_of("name").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to start vm: {}", e)
+        };
+    }
+    // Stop VM
+    if let Some(matches) = matches.subcommand_matches("stopvm") {
+        match vm::stop(srv, matches.value_of("name").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to stop vm: {}", e)
         };
     }
 }

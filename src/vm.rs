@@ -64,9 +64,15 @@ pub fn get(srv: &str, name: &str) -> Result<(), String> {
         Err(e) => return Err(e)
     };
 
+    let status = match super::command(srv, "statusvm", name) {
+        Ok(data) => data["running"].as_bool().unwrap_or_default(),
+        Err(_) => false
+    };
+
     println!("Name: {}", vm["name"]);
     println!("Backend: {}", vm["backend"]);
     println!("Image: {}", vm["image"]);
+    println!("Running: {}", status);
     println!("Parameters: {}", vm["parameters"]);
 
     Ok(())
@@ -99,6 +105,26 @@ pub fn update(srv: &str, def: &str) -> Result<(), String> {
  */
 pub fn delete(srv: &str, name: &str) -> Result<(), String> {
     match super::command(srv, "delvm", name) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e)
+    }
+}
+
+/*
+ * Start a VM
+ */
+pub fn start(srv: &str, name: &str) -> Result<(), String> {
+    match super::command(srv, "startvm", name) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e)
+    }
+}
+
+/*
+ * Stop a VM
+ */
+pub fn stop(srv: &str, name: &str) -> Result<(), String> {
+    match super::command(srv, "stopvm", name) {
         Ok(_) => Ok(()),
         Err(e) => Err(e)
     }
