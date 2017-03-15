@@ -5,6 +5,7 @@ extern crate clap;
 
 mod image;
 mod vm;
+mod snapshot;
 
 use std::error::Error;
 use std::net::UdpSocket;
@@ -159,6 +160,58 @@ fn main() {
                          .help("Name of the VM"))
         )
 
+        // Snapshots
+        .subcommand(SubCommand::with_name("createsnap")
+                    .about("Save the state of a VM")
+                    .arg(Arg::with_name("name")
+                         .required(true)
+                         .takes_value(true)
+                         .short("n")
+                         .long("name")
+                         .help("Name of the snapshot"))
+                    .arg(Arg::with_name("vm")
+                         .required(true)
+                         .takes_value(true)
+                         .long("vm")
+                         .help("Name of the VM"))
+        )
+        .subcommand(SubCommand::with_name("listsnap")
+                    .about("List the snapshots of a VM")
+                    .arg(Arg::with_name("vm")
+                         .required(true)
+                         .takes_value(true)
+                         .long("vm")
+                         .help("Name of the VM"))
+        )
+        .subcommand(SubCommand::with_name("restoresnap")
+                    .about("Restore a snapshot")
+                    .arg(Arg::with_name("name")
+                         .required(true)
+                         .takes_value(true)
+                         .short("n")
+                         .long("name")
+                         .help("Name of the snapshot"))
+                    .arg(Arg::with_name("vm")
+                         .required(true)
+                         .takes_value(true)
+                         .long("vm")
+                         .help("Name of the VM"))
+        )
+        .subcommand(SubCommand::with_name("delsnap")
+                    .about("Delete a snapshot")
+                    .arg(Arg::with_name("name")
+                         .required(true)
+                         .takes_value(true)
+                         .short("n")
+                         .long("name")
+                         .help("Name of the snapshot"))
+                    .arg(Arg::with_name("vm")
+                         .required(true)
+                         .takes_value(true)
+                         .long("vm")
+                         .help("Name of the VM"))
+        )
+
         .get_matches();
 
     // Create Image
@@ -244,6 +297,35 @@ fn main() {
         match vm::stop(srv, matches.value_of("name").unwrap()) {
             Ok(_) => {},
             Err(e) => println!("Failed to stop vm: {}", e)
+        };
+    }
+
+    // Create snapshot
+    if let Some(matches) = matches.subcommand_matches("createsnap") {
+        match snapshot::create(srv, matches.value_of("name").unwrap(), matches.value_of("vm").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to create snapshot: {}", e)
+        };
+    }
+    // List snapshots
+    if let Some(matches) = matches.subcommand_matches("listsnap") {
+        match snapshot::list(srv, matches.value_of("vm").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to list snapshots: {}", e)
+        };
+    }
+    // Restore snapshot
+    if let Some(matches) = matches.subcommand_matches("restoresnap") {
+        match snapshot::restore(srv, matches.value_of("name").unwrap(), matches.value_of("vm").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to restore snapshot: {}", e)
+        };
+    }
+    // Delete snapshot
+    if let Some(matches) = matches.subcommand_matches("delsnap") {
+        match snapshot::delete(srv, matches.value_of("name").unwrap(), matches.value_of("vm").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to delete snapshot: {}", e)
         };
     }
 }

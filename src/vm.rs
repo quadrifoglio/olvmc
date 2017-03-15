@@ -37,11 +37,11 @@ pub fn list(srv: &str) -> Result<(), String> {
         Err(e) => return Err(e)
     };
 
-    println!("Name\t\tBackend\t\tImage\t\tStatus");
-
     if !data.is_array() {
         return Err("Invalid response for backend, expected array".to_string());
     }
+
+    println!("Name\t\tBackend\t\tImage\t\tStatus");
 
     for vm in data.members() {
         let status = match super::command(srv, "statusvm", vm["name"].as_str().unwrap_or_default()) {
