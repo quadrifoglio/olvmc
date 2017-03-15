@@ -9,9 +9,11 @@ mod vm;
 use std::error::Error;
 use std::net::UdpSocket;
 
+use json::JsonValue;
+
 use clap::{Arg, App, SubCommand};
 
-pub fn command(srv: &str, cmd: &str, arg: &str) -> Result<String, String> {
+pub fn command(srv: &str, cmd: &str, arg: &str) -> Result<JsonValue, String> {
     let socket = match UdpSocket::bind("127.0.0.1:3945") {
         Ok(socket) => socket,
         Err(e) => return Err(e.description().to_string())
@@ -25,15 +27,32 @@ pub fn command(srv: &str, cmd: &str, arg: &str) -> Result<String, String> {
     };
 
     let mut buf = [0; 1024];
-    match socket.recv_from(&mut buf) {
+    let data = match socket.recv_from(&mut buf) {
         Ok((len, _)) => {
             match String::from_utf8(buf[..len].to_vec()) {
-                Ok(s) => Ok(s),
-                Err(_) => Err("Invalid response: could not read as a string".to_string())
+                Ok(s) => {
+                    if s.len() <= 2 {
+                        return Ok(JsonValue::Null);
+                    }
+
+                    match json::parse(s.as_str()) {
+                        Ok(v) => {
+                            if s.contains("\"error\"") {
+                                return Err(v["error"].to_string());
+                            }
+
+                            v
+                        },
+                        Err(e) => return Err(e.description().to_string())
+                    }
+                },
+                Err(_) => return Err("Invalid response: could not read as a string".to_string())
             }
         },
-        Err(e) => Err(e.description().to_string())
-    }
+        Err(e) => return Err(e.description().to_string())
+    };
+
+    Ok(data)
 }
 
 fn main() {
