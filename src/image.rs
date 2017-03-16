@@ -6,6 +6,8 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 
+use prettytable::Table;
+
 /*
  * Create an image
  */
@@ -37,11 +39,14 @@ pub fn list(srv: &str) -> Result<(), String> {
         Err(e) => return Err(e)
     };
 
-    println!("Name\t\tBackend\t\tFile");
+    let mut table = Table::new();
+    table.add_row(row!["NAME", "BACKEND", "FILE"]);
 
     for img in data.members() {
-        println!("{}\t\t{}\t\t{}", img["name"], img["backend"], img["file"]);
+        table.add_row(row![img["name"], img["backend"], img["file"]]);
     }
+
+    table.printstd();
 
     Ok(())
 }

@@ -5,6 +5,8 @@
 use std::error::Error;
 use json::{self, JsonValue};
 
+use prettytable::Table;
+
 /*
  * Create an interface
  */
@@ -44,7 +46,8 @@ pub fn list(srv: &str, vm: &str) -> Result<(), String> {
         Err(e) => return Err(e)
     };
 
-    println!("Index\t\tNetwork\t\tIP\t\t\tMAC");
+    let mut table = Table::new();
+    table.add_row(row!["INDEX", "NETWORK", "IP", "MAC"]);
 
     if vm["interfaces"].is_null() || !vm["interfaces"].is_array() {
         return Err("Invalid response for backend, expected array (interfaces)".to_string());
@@ -52,9 +55,11 @@ pub fn list(srv: &str, vm: &str) -> Result<(), String> {
 
     let mut i = 0;
     for iface in vm["interfaces"].members() {
-        println!("{}\t\t{}\t\t{}\t\t{}", i, iface["network"], iface["ip"], iface["mac"]);
+        table.add_row(row![i, iface["network"], iface["ip"], iface["mac"]]);
         i = i + 1;
     }
+
+    table.printstd();
 
     Ok(())
 }

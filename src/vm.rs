@@ -6,6 +6,8 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 
+use prettytable::Table;
+
 /*
  * Create a VM
  */
@@ -41,7 +43,8 @@ pub fn list(srv: &str) -> Result<(), String> {
         return Err("Invalid response for backend, expected array".to_string());
     }
 
-    println!("Name\t\tBackend\t\tImage\t\tStatus");
+    let mut table = Table::new();
+    table.add_row(row!["NAME", "BACKEND", "FILE", "STATUS"]);
 
     for vm in data.members() {
         let status = match super::command(srv, "statusvm", vm["name"].as_str().unwrap_or_default()) {
@@ -49,8 +52,10 @@ pub fn list(srv: &str) -> Result<(), String> {
             Err(_) => false
         };
 
-        println!("{}\t\t{}\t\t{}\t\t{}", vm["name"], vm["backend"], vm["image"], status);
+        table.add_row(row![vm["name"], vm["backend"], vm["image"], status]);
     }
+
+    table.printstd();
 
     Ok(())
 }

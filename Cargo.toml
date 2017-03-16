@@ -6,3 +6,4 @@ authors = ["Quadrifoglio <clement@dreamvids.fr>"]
 [dependencies]
 clap = "2"
 json = "*"
+prettytable-rs = "0.6.6"

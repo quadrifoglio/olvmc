@@ -3,6 +3,7 @@
  */
 
 use json;
+use prettytable::Table;
 
 /*
  * Create a snapshot
@@ -32,11 +33,14 @@ pub fn list(srv: &str, vm: &str) -> Result<(), String> {
         return Err("Invalid response for backend, expected array".to_string());
     }
 
-    println!("VM\t\tName");
+    let mut table = Table::new();
+    table.add_row(row!["VM", "NAME"]);
 
     for snap in data.members() {
-        println!("{}\t\t{}", vm, snap["name"]);
+        table.add_row(row![vm, snap["name"]]);
     }
+
+    table.printstd();
 
     Ok(())
 }

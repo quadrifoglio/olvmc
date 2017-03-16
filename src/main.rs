@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate json;
 
+#[macro_use]
+extern crate prettytable;
+
 extern crate clap;
 
 mod image;

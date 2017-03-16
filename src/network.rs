@@ -6,6 +6,8 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 
+use prettytable::Table;
+
 /*
  * Create a network
  */
@@ -37,11 +39,14 @@ pub fn list(srv: &str) -> Result<(), String> {
         Err(e) => return Err(e)
     };
 
-    println!("Name\t\tCIDR\t\t\tRouter\t\tInterface");
+    let mut table = Table::new();
+    table.add_row(row!["NAME", "CIDR", "ROUTER", "DNS", "GATEWAY INTERFACE"]);
 
     for net in data.members() {
-        println!("{}\t\t{}\t\t{}\t\t{}", net["name"], net["cidr"], net["router"], net["interface"]);
+        table.add_row(row![net["name"], net["cidr"], net["router"], net["interface"], net["dns"]]);
     }
+
+    table.printstd();
 
     Ok(())
 }
