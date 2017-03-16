@@ -43,7 +43,7 @@ pub fn list(srv: &str) -> Result<(), String> {
     table.add_row(row!["NAME", "CIDR", "ROUTER", "DNS", "GATEWAY INTERFACE"]);
 
     for net in data.members() {
-        table.add_row(row![net["name"], net["cidr"], net["router"], net["interface"], net["dns"]]);
+        table.add_row(row![net["name"], net["cidr"], net["router"], net["dns"], net["interface"]]);
     }
 
     table.printstd();
