@@ -44,7 +44,7 @@ pub fn list(srv: &str) -> Result<(), String> {
     }
 
     let mut table = Table::new();
-    table.add_row(row!["NAME", "BACKEND", "FILE", "STATUS"]);
+    table.add_row(row!["NAME", "BACKEND", "IMAGE", "RUNNING"]);
 
     for vm in data.members() {
         let status = match super::command(srv, "statusvm", vm["name"].as_str().unwrap_or_default()) {
