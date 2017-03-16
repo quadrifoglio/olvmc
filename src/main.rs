@@ -4,6 +4,7 @@ extern crate json;
 extern crate clap;
 
 mod image;
+mod network;
 mod vm;
 mod interface;
 mod snapshot;
@@ -102,6 +103,36 @@ fn main() {
                          .short("n")
                          .long("name")
                          .help("Name of the image"))
+        )
+
+        // Networks
+        .subcommand(SubCommand::with_name("createnet")
+                    .about("Create a new network")
+                    .arg(Arg::with_name("def")
+                         .required(true)
+                         .takes_value(true)
+                         .short("d")
+                         .long("definition")
+                         .help("Path to the JSON network definition"))
+        )
+        .subcommand(SubCommand::with_name("listnet").about("List networks"))
+        .subcommand(SubCommand::with_name("getnet")
+                    .about("Get information about an network")
+                    .arg(Arg::with_name("name")
+                         .required(true)
+                         .takes_value(true)
+                         .short("n")
+                         .long("name")
+                         .help("Name of the network"))
+        )
+        .subcommand(SubCommand::with_name("delnet")
+                    .about("Delete an network")
+                    .arg(Arg::with_name("name")
+                         .required(true)
+                         .takes_value(true)
+                         .short("n")
+                         .long("name")
+                         .help("Name of the network"))
         )
 
         // VMs
@@ -290,6 +321,35 @@ fn main() {
         match image::delete(srv, matches.value_of("name").unwrap()) {
             Ok(_) => {},
             Err(e) => println!("Failed to delete image: {}", e)
+        };
+    }
+
+    // Create Network
+    if let Some(matches) = matches.subcommand_matches("createnet") {
+        match network::create(srv, matches.value_of("def").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to create network: {}", e)
+        };
+    }
+    // List networks
+    else if let Some(_) = matches.subcommand_matches("listnet") {
+        match network::list(srv) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to get network: {}", e)
+        };
+    }
+    // Get Network
+    if let Some(matches) = matches.subcommand_matches("getnet") {
+        match network::get(srv, matches.value_of("name").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to get network: {}", e)
+        };
+    }
+    // Delete Network
+    if let Some(matches) = matches.subcommand_matches("delnet") {
+        match network::delete(srv, matches.value_of("name").unwrap()) {
+            Ok(_) => {},
+            Err(e) => println!("Failed to delete network: {}", e)
         };
     }
 
